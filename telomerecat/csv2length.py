@@ -243,9 +243,9 @@ class Csv2Length(core.TelomerecatInterface):
   def __quick_length__(self, counts):
     lengths = []
     for i, sample in counts.iterrows():
-      factor = sample["Read_length"] / (sample["F2a_c"] - sample["Read_length"])
-      scale = sample["F2a_c"] + (sample["F2a_c"] * factor)
-      length = ((sample["F1"] / scale) * sample["Insert_mean"]) + sample["Insert_mean"]
+      k = 5258 / 0.8567
+      scale = sample["F2"] + sample["F4"]
+      length = (k * (sample["F1"] / scale) * sample["Insert_mean"]) + sample["Insert_mean"]
       lengths.append(round(length, 3))
     return lengths
 
