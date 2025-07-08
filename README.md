@@ -27,7 +27,7 @@ Telomerecat Lite is adaptable, accurate and fast. The algorithm accounts for seq
 ```bash
 git clone https://github.com/eamozheiko/telomerecat
 cd telomerecat
-conda create -n telomerecat python=3.10 gcc gxx
+conda create -n telomerecat -c bioconda -c conda-forge python=3.10 gcc gxx
 conda activate telomerecat
 python setup.py develop # so bin scripts can find module
 ```
