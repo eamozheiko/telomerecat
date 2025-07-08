@@ -1,7 +1,6 @@
 # Telomerecat MGI
 
 **Telomerecat MGI** is telomerecat [Telomerecat](https://github.com/cancerit/telomerecat) version adupted to MGI sequencing data, such as:
-
 - T7
 - G400
 ---
