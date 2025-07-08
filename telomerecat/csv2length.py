@@ -169,13 +169,14 @@ class Csv2Length(core.TelomerecatInterface):
     self.run(
       input_paths=self.cmd_args.input,
       correct_f2a=self.cmd_args.enable_correction,
+      use_mgi=self.cmd_args.mgi,
       output_paths=output_paths,
       prior_weight=self.cmd_args.prior_weight,
       seed_randomness=self.cmd_args.seed_randomness,
       simulator_n=self.cmd_args.simulator_runs
     )
 
-  def run(self, input_paths, output_paths=[], correct_f2a=True, prior_weight=3, seed_randomness=False, simulator_n=10):
+  def run(self, input_paths, output_paths=[], correct_f2a=True, use_mgi=False, prior_weight=3, seed_randomness=False, simulator_n=10):
 
     self.__introduce__()
     self.__generate_output_paths__(input_paths, output_paths)
@@ -189,7 +190,7 @@ class Csv2Length(core.TelomerecatInterface):
 
       counts = pd.read_csv(input_path)
       counts = self.__get_length_from_dataframe__(
-        counts, simulator_n, correct_f2a, prior_weight, seed_randomness
+        counts, simulator_n, correct_f2a, use_mgi, prior_weight, seed_randomness
       )
 
       self.__output_length_results__(counts, output_path)
@@ -209,17 +210,18 @@ class Csv2Length(core.TelomerecatInterface):
     return output_paths
 
   def __get_length_from_dataframe__(
-    self, counts, simulator_n, correct_f2a=True, prior_weight=3, seed_randomness=False, simulate_lengths=True,
+    self, counts, simulator_n, correct_f2a=True, use_mgi=True, prior_weight=3, seed_randomness=False, simulate_lengths=True
   ):
 
     counts["F2a"] = counts["F2"] - counts["F4"]
-
+    print("!!!!!!!!!!!!step0")
     if correct_f2a:
+      print("!!!!!!!!!!!!YES")
       counts["F2a_c"] = self.__get_corrected_f2a__(counts, prior_weight)
     else:
       counts["F2a_c"] = counts["F2a"]
 
-    if simulate_lengths:
+    if simulate_lengths and not use_mgi:
       counts["Length"] = self.__get_lengths__(counts, seed_randomness, simulator_n)
     else:
       counts["Length"] = self.__quick_length__(counts)
@@ -240,14 +242,21 @@ class Csv2Length(core.TelomerecatInterface):
 
     return corrected_f2_counts.round(3)
 
-  def __quick_length__(self, counts):
+  def __quick_length__(self, counts, use_mgi=True):
     lengths = []
-    k = 8600 / 29 * 1,6  # Constant factor
-    for i, sample in counts.iterrows():
-      length = k * sample["F1"] / (sample["F2"] - sample["F4"]) 
-      lengths.append(round(length, 3))
-    return lengths
-
+    if use_mgi:
+      k = 8600 / 29 * 1.6  # Default constant
+      for i, sample in counts.iterrows():
+        length = k * sample["F1"] / (sample["F2"] - sample["F4"])
+        lengths.append(round(length, 3))
+      return length 
+    else:
+      for i, sample in counts.iterrows():
+        factor = sample["Read_length"] / (sample["F2a_c"] - sample["Read_length"])
+        scale = sample["F2a_c"] + (sample["F2a_c"] * factor)
+        length = ((sample["F1"] / scale) * sample["Insert_mean"]) + sample["Insert_mean"]
+        lengths.append(round(length, 3))
+      return lengths
 
   def __get_lengths__(self, counts, seed_randomness, simulator_n):
     lengths = []

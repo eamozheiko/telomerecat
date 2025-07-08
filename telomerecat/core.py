@@ -77,6 +77,15 @@ class TelomerecatInterface(parabam.core.Interface, metaclass=ABCMeta):
     )
 
     parser.add_argument(
+      "-m",
+      "--mgi",
+      action="store_true",
+      default=False,
+      help="Correct MGI batch effect",
+    )
+
+
+    parser.add_argument(
       "--seed_randomness",
       action="store_true",
       default=False,

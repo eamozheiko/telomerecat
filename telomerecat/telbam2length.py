@@ -865,6 +865,7 @@ class Telbam2Length(TelomerecatInterface):
       output_path=self.cmd_args.output,
       simulator_n=self.cmd_args.simulator_runs,
       correct_f2a=self.cmd_args.enable_correction,
+      use_mgi=self.cmd_args.mgi,
       inserts_path=self.cmd_args.insert,
       seed_randomness=self.cmd_args.seed_randomness
     )
@@ -875,6 +876,7 @@ class Telbam2Length(TelomerecatInterface):
     trim=0,
     output_path=None,
     correct_f2a=False,
+    use_mgi=False,
     simulator_n=10,
     inserts_path=None,
     seed_randomness=False
@@ -933,6 +935,7 @@ class Telbam2Length(TelomerecatInterface):
       input_paths=[temp_csv_path],
       output_paths=[output_csv_path],
       correct_f2a=correct_f2a,
+      use_mgi=use_mgi,
       seed_randomness=seed_randomness,
       simulator_n=simulator_n
     )

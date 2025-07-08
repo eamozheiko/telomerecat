@@ -45,6 +45,7 @@ class Bam2Length(TelomerecatInterface):
       inserts_path=self.cmd_args.insert,
       outbam_dir=self.cmd_args.outbam_dir,
       correct_f2a=self.cmd_args.enable_correction,
+      use_mgi=self.cmd_args.mgi,
       simulator_n=self.cmd_args.simulator_runs,
       seed_randomness=self.cmd_args.seed_randomness
     )
@@ -56,6 +57,7 @@ class Bam2Length(TelomerecatInterface):
     outbam_dir=None,
     inserts_path=None,
     correct_f2a=False,
+    use_mgi=False,
     simulator_n=10,
     seed_randomness=False
   ):
@@ -93,6 +95,7 @@ class Bam2Length(TelomerecatInterface):
       inserts_path=inserts_path,
       simulator_n=simulator_n,
       correct_f2a=correct_f2a,
+      use_mgi=use_mgi,
       seed_randomness=seed_randomness
     )
 
