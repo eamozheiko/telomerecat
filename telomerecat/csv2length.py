@@ -242,9 +242,9 @@ class Csv2Length(core.TelomerecatInterface):
 
   def __quick_length__(self, counts):
     lengths = []
-    k = 5258 / 3.94  # Constant factor
+    k = 8600 / 29 * 1,6  # Constant factor
     for i, sample in counts.iterrows():
-      length = k * sample["F1"] / (sample["F2"] + sample["F4"]) 
+      length = k * sample["F1"] / (sample["F2"] - sample["F4"]) 
       lengths.append(round(length, 3))
     return lengths
 
