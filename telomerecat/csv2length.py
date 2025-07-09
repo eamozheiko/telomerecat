@@ -245,9 +245,9 @@ class Csv2Length(core.TelomerecatInterface):
   def __quick_length__(self, counts, use_mgi=True):
     lengths = []
     if use_mgi:
-      scale_mgi1 = 8600 / 29 * 1.6  # Default constant
+      scale_mgi1 = 8600 / 29 * 1.6 * 4  # Default constant
       scale_mgi2 = sample["F1"] / (sample["F2"] + sample["F4"])
-      k = scale_mgi1 * scale_mgi2
+      k = scale_mgi1 / scale_mgi2
       for i, sample in counts.iterrows():
         length = k * sample["F1"] / (sample["F2"] - sample["F4"])
         lengths.append(round(length, 3))
