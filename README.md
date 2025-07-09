@@ -38,4 +38,4 @@ python setup.py develop # so bin scripts can find module
 
 ## Citing
 
-If you are using Telomerecat Lite for your research, the most relevant link to cite is https://github.com/eamozheiko/telomerecat
+If you are using Telomerecat MGI for your research, the most relevant link to cite is https://github.com/eamozheiko/telomerecat
