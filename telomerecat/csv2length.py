@@ -16,6 +16,7 @@ import math
 
 import numpy as np
 import pandas as pd
+from joblib import load
 
 from argparse import SUPPRESS
 from functools import partial
@@ -242,23 +243,56 @@ class Csv2Length(core.TelomerecatInterface):
 
     return corrected_f2_counts.round(3)
 
-  def __quick_length__(self, counts, use_mgi=True):
+def __quick_length__(self, counts, use_mgi=True, model_path='trained_telomere_model.joblib'):
     lengths = []
+
     if use_mgi:
-      scale_mgi1 = 8600 / 29 * 1.6 * 4  # Default constant
-      scale_mgi2 = sample["F1"] / (sample["F2"] + sample["F4"])
-      k = scale_mgi1 / scale_mgi2
-      for i, sample in counts.iterrows():
-        length = k * sample["F1"] / (sample["F2"] - sample["F4"])
-        lengths.append(round(length, 3))
-      return length 
+        # Load the trained model once
+        model = load(model_path)
+
+        # Iterate through the samples
+        for i, sample in counts.iterrows():
+            try:
+                # Extract values
+                F1 = sample["F1"]
+                F2 = sample["F2"]
+                F4 = sample["F4"]
+
+                # Handle divide-by-zero or bad input
+                if (F2 - F4) == 0 or F2 == 0 or F4 == 0:
+                    lengths.append(None)
+                    continue
+
+                # Prepare input features as in training
+                features = pd.DataFrame([{
+                    'F1_F2_ratio': F1 / F2,
+                    'F2_F4_ratio': F2 / F4,
+                    'F1_F4_ratio': F1 / F4
+                }])
+
+                # Predict and append result
+                length = model.predict(features)[0]
+                lengths.append(round(length, 3))
+
+            except Exception as e:
+                print(f"Error processing sample {i}: {e}")
+                lengths.append(None)
+
+        return lengths
+
     else:
-      for i, sample in counts.iterrows():
-        factor = sample["Read_length"] / (sample["F2a_c"] - sample["Read_length"])
-        scale = sample["F2a_c"] + (sample["F2a_c"] * factor)
-        length = ((sample["F1"] / scale) * sample["Insert_mean"]) + sample["Insert_mean"]
-        lengths.append(round(length, 3))
-      return lengths
+        for i, sample in counts.iterrows():
+            try:
+                factor = sample["Read_length"] / (sample["F2a_c"] - sample["Read_length"])
+                scale = sample["F2a_c"] + (sample["F2a_c"] * factor)
+                length = ((sample["F1"] / scale) * sample["Insert_mean"]) + sample["Insert_mean"]
+                lengths.append(round(length, 3))
+            except Exception as e:
+                print(f"Error processing sample {i}: {e}")
+                lengths.append(None)
+
+        return lengths
+
 
   def __get_lengths__(self, counts, seed_randomness, simulator_n):
     lengths = []
