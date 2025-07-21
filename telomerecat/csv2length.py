@@ -261,6 +261,11 @@ def __quick_length__(self, counts, use_mgi=True, model_path='trained_telomere_mo
                 F2 = sample["F2"]
                 F4 = sample["F4"]
 
+                # F1, F2, F4 value is too small
+                if F1 < 100 or F2 < 100 or F4 < 100:
+                  lengths.append(None)
+                  continue
+                  
                 # Handle divide-by-zero or bad input
                 if (F2 - F4) == 0 or F2 == 0 or F4 == 0:
                     lengths.append(None)
