@@ -1,6 +1,6 @@
 # Telomerecat MGI
 
-**Telomerecat MGI** is telomerecat [Telomerecat](https://github.com/cancerit/telomerecat) version adupted to MGI sequencing data, such as:
+**Telomerecat MGI** is [Telomerecat](https://github.com/cancerit/telomerecat) version based on Ridge Regression ML method and adupted to MGI sequencing data, such as:
 - T7
 - G400
 ---
@@ -25,7 +25,9 @@ telomerecat bam2length --mgi -p 32 example.BAM
 * [numpy](https://numpy.org/)
 * [pysam](https://www.scipy.org/)
 * [pandas](https://pandas.pydata.org/)
-
+* [joblib](https://joblib.readthedocs.io/)
+* [scikit-learn](https://scikit-learn.org/)
+* 
 ## Installation with conda env
 
 ```bash
