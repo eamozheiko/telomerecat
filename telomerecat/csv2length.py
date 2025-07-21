@@ -9,6 +9,7 @@ Author: jhrf
 """
 
 import sys
+import os
 import textwrap
 import time
 import random
@@ -246,60 +247,59 @@ class Csv2Length(core.TelomerecatInterface):
 
     return corrected_f2_counts.round(3)
 
-def __quick_length__(self, counts, use_mgi=True, model_path='trained_telomere_model.joblib'):
+  def __quick_length__(self, counts, use_mgi=True, model_path=None):
     lengths = []
 
     if use_mgi:
-        # Load the trained model once
-        model = load(model_path)
 
-        # Iterate through the samples
-        for i, sample in counts.iterrows():
-            try:
-                # Extract values
-                F1 = sample["F1"]
-                F2 = sample["F2"]
-                F4 = sample["F4"]
+      script_dir = os.path.dirname(os.path.abspath(__file__))
+      model_path = os.path.join(script_dir, 'models/mgi.joblib')
+      # Load the trained model once
+      model = load(model_path)
 
-                # F1, F2, F4 value is too small
-                if F1 < 100 or F2 < 100 or F4 < 100:
-                  lengths.append(None)
-                  continue
-                  
-                # Handle divide-by-zero or bad input
-                if (F2 - F4) == 0 or F2 == 0 or F4 == 0:
-                    lengths.append(None)
-                    continue
+      # Iterate through the samples
+      for i, sample in counts.iterrows():
+        try:
+          # Extract values
+          F1 = sample["F1"]
+          F2 = sample["F2"]
+          F4 = sample["F4"]
 
-                # Prepare input features as in training
-                features = pd.DataFrame([{
-                    'F1_F2_ratio': F1 / F2,
-                    'F2_F4_ratio': F2 / F4,
-                    'F1_F4_ratio': F1 / F4
-                }])
+          # F1, F2, F4 value is too small
+          if F1 < 100 or F2 < 100 or F4 < 100:
+            print("Warning: Detected telomere reads count is too low. Unable to calculate Length")
+            lengths.append(0)
+            continue
 
-                # Predict and append result
-                length = model.predict(features)[0]
-                lengths.append(round(length, 3))
+          # Prepare input features as in training
+          features = pd.DataFrame([{
+            'F1_F2_ratio': F1 / F2,
+            'F2_F4_ratio': F2 / F4,
+            'F1_F4_ratio': F1 / F4
+          }])
 
-            except Exception as e:
-                print(f"Error processing sample {i}: {e}")
-                lengths.append(None)
+          # Predict and append result
+          length = model.predict(features)[0]
+          lengths.append(round(length, 3))
 
-        return lengths
+        except Exception as e:
+          print(f"Error processing sample {i}: {e}")
+          lengths.append(None)
+
+      return lengths
 
     else:
-        for i, sample in counts.iterrows():
-            try:
-                factor = sample["Read_length"] / (sample["F2a_c"] - sample["Read_length"])
-                scale = sample["F2a_c"] + (sample["F2a_c"] * factor)
-                length = ((sample["F1"] / scale) * sample["Insert_mean"]) + sample["Insert_mean"]
-                lengths.append(round(length, 3))
-            except Exception as e:
-                print(f"Error processing sample {i}: {e}")
-                lengths.append(None)
+      for i, sample in counts.iterrows():
+        try:
+          factor = sample["Read_length"] / (sample["F2a_c"] - sample["Read_length"])
+          scale = sample["F2a_c"] + (sample["F2a_c"] * factor)
+          length = ((sample["F1"] / scale) * sample["Insert_mean"]) + sample["Insert_mean"]
+          lengths.append(round(length, 3))
+        except Exception as e:
+          print(f"Error processing sample {i}: {e}")
+          lengths.append(None)
 
-        return lengths
+      return lengths
 
 
   def __get_lengths__(self, counts, seed_randomness, simulator_n):
@@ -318,7 +318,7 @@ def __quick_length__(self, counts, use_mgi=True, model_path='trained_telomere_mo
         simulator_n
       )
 
-      lengths.append(length_mean)
+    lengths.append(length_mean)
     return lengths
 
   def __generate_output_paths__(self, input_paths, output_paths):
