@@ -15,7 +15,7 @@ setup(
   author_email="cgphelp@sanger.ac.uk",
   packages=["telomerecat"],
   package_dir={"telomerecat": "telomerecat"},
-  install_requires=["parabam>=3.0.1", "numpy", "pysam", "pandas", "click"],
+  install_requires=["parabam>=3.0.1", "numpy", "pysam", "pandas", "click", "joblib", "scikit-learn"],
   include_package_data=True,
   scripts=["./telomerecat/bin/telomerecat"],
   entry_points={'console_scripts': ['pysam_collate=telomerecat.pysam_collate:thin_wrap'],},
